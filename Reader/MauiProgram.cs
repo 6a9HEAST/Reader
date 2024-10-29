@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using Reader.Services;
+using Reader.Models;
+using Reader.ViewModels;
 
 namespace Reader
 {
@@ -13,10 +16,12 @@ namespace Reader
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
-
+                })
+                .Services.AddSingleton<IDataStore<Book>, BookDataStore>()
+                .AddTransient<MainViewModel>()
+                .AddSingleton<MainPage>();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
