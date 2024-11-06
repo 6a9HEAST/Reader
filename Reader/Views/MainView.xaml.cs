@@ -1,12 +1,12 @@
 ﻿using Reader.ViewModels;
 
-namespace Reader
+namespace Reader.Views
 {
-    public partial class MainPage : ContentPage
+    public partial class MainView : ContentPage
     {
         int count = 0;
 
-        public MainPage(MainViewModel viewModel)
+        public MainView(MainViewModel viewModel)
         {
             InitializeComponent();
             BindingContext = viewModel;

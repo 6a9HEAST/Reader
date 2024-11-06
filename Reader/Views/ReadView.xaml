@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Reader.Views.ReadView"
+             xmlns:vm="clr-namespace:Reader.ViewModels" 
+             Shell.NavBarIsVisible="False">
+    <AbsoluteLayout>
+
+        <!-- Основное содержимое страницы -->
+        <StackLayout BackgroundColor="#FFE3C2" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+            <Label Text="Основное содержимое страницы"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Center" />
+            
+            <StackLayout.GestureRecognizers>
+                <TapGestureRecognizer 
+                    NumberOfTapsRequired="1"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReadViewModel}}, Path=ShowOverlayCommand}"		
+                    CommandParameter="{Binding .}">
+                </TapGestureRecognizer>
+            </StackLayout.GestureRecognizers>
+            
+        </StackLayout>
+
+
+        <!-- Верхняя панель оверлея -->
+        <StackLayout BackgroundColor="#6D604C"
+                     HeightRequest="100"
+                     IsVisible="{Binding IsOverlayVisible}"
+                     AbsoluteLayout.LayoutFlags="PositionProportional, WidthProportional"
+                     AbsoluteLayout.LayoutBounds="0,0.06,1,0">
+            <Button Text="Назад" Command="{Binding GoBackCommand}" 
+                    HorizontalOptions="Center" 
+VerticalOptions="CenterAndExpand"/>
+            
+        </StackLayout>
+
+        <!-- Нижняя панель оверлея -->
+        <StackLayout BackgroundColor="#6D604C"
+                     HeightRequest="100"
+                     IsVisible="{Binding IsOverlayVisible}"
+                     AbsoluteLayout.LayoutFlags="PositionProportional, WidthProportional"
+                     AbsoluteLayout.LayoutBounds="0.5,0.94,1,0">
+            <Label Text="Нижняя панель оверлея" 
+                   HorizontalOptions="Center" 
+                   VerticalOptions="CenterAndExpand" />
+        </StackLayout>
+
+    </AbsoluteLayout>
+</ContentPage>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Reader.Services;
+using Reader.Views;
 using Reader.Models;
 using Reader.ViewModels;
 
@@ -19,7 +20,9 @@ namespace Reader
                 })
                 .Services.AddSingleton<IDataStore<Book>, BookDataStore>()
                 .AddTransient<MainViewModel>()
-                .AddSingleton<MainPage>();
+                .AddTransient<ReadViewModel>()
+                .AddSingleton<MainView>()
+                .AddSingleton<ReadView>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

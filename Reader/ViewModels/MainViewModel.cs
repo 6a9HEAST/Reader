@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
+using Reader.Views;
 
 namespace Reader.ViewModels
 {
@@ -26,6 +27,7 @@ namespace Reader.ViewModels
             //Task.Run(async () => await ExecuteLoadItemsCommand());
             LoadItemsCommand.Execute(null);
             ItemTapped = new Command<Book>(OnItemSelected);
+            
 
             AddItemCommand = new Command(OnAddItem);
         }
@@ -79,8 +81,8 @@ namespace Reader.ViewModels
 
         async void OnItemSelected(Book item)
         {
-            if (item == null)
-                return;
+            
+                await Shell.Current.GoToAsync("ReadView");
 
             // This will push the ItemDetailPage onto the navigation stack
             //await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?{nameof(ItemDetailViewModel.ItemId)}={item.Id}");

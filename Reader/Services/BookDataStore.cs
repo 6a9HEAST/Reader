@@ -14,7 +14,8 @@ namespace Reader.Services
         {
             items = new List<Book>()
             {
-                new Book { Id = Guid.NewGuid().ToString(), Author = "Author", Name="Name" }
+                new Book { Id = Guid.NewGuid().ToString(), Author = "Author1", Name="Name1", Collection="Collection1", Type="FB2",Size=54 },
+                new Book { Id = Guid.NewGuid().ToString(), Author = "Author2", Name="Name2", Collection="Collection2", Type="DOCX",Size=5000 }
             };
         }
 
