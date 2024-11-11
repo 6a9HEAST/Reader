@@ -15,5 +15,13 @@
         
         Route="///ReadView" 
         ContentTemplate="{DataTemplate local:ReadView}" />
+    <ShellContent 
+        
+        Route="///SearchView" 
+        ContentTemplate="{DataTemplate local:SearchView}" />
+    <ShellContent 
+    
+    Route="///ContentView" 
+    ContentTemplate="{DataTemplate local:ContentView}" />
 
 </Shell>

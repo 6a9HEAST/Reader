@@ -24,6 +24,8 @@ namespace Reader.ViewModels
         public ICommand ShowOverlayCommand { get; }
         public ICommand HideOverlayCommand { get; }
         public ICommand GoBackCommand { get; }
+        public ICommand OpenSearchCommand { get; }
+        public ICommand OpenContentCommand { get; }
 
         protected readonly IDataStore<Book> DataStore;
 
@@ -35,6 +37,8 @@ namespace Reader.ViewModels
             HideOverlayCommand = new Command(HideOverlay);
             
             GoBackCommand = new Command(GoBack);
+            OpenSearchCommand = new Command(OpenSearch);
+            OpenContentCommand= new Command(OpenContent);
         }
 
         private void ShowOverlay()
@@ -51,6 +55,15 @@ namespace Reader.ViewModels
         {
             await Shell.Current.GoToAsync("..");
             IsOverlayVisible = false;
+        }
+
+        private async void OpenSearch()
+        {
+            await Shell.Current.GoToAsync("SearchView");
+        }
+        private async void OpenContent()
+        {
+            await Shell.Current.GoToAsync("ContentView");
         }
 
     }

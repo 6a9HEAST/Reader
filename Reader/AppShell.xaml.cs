@@ -9,6 +9,8 @@ namespace Reader
         {
             InitializeComponent();
             Routing.RegisterRoute("ReadView", typeof(ReadView));
+            Routing.RegisterRoute("SearchView", typeof(SearchView)); 
+            Routing.RegisterRoute("ContentView", typeof(Reader.Views.ContentView));
         }
     }
 }

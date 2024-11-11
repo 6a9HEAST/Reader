@@ -57,26 +57,42 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Images\list_solid.svg" />
+	  <None Remove="Resources\Images\magnifying_glass_solid.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="2GIS.ChmLibCore" Version="1.0.3" />
 		<PackageReference Include="DocX" Version="3.0.1" />
 		<PackageReference Include="EpubSharp.dll" Version="1.1.5" />
 		<PackageReference Include="Fb2.Document" Version="2.4.0" />
 		<PackageReference Include="FB2Library" Version="1.3.3" />
+		<PackageReference Include="FFImageLoading.Maui" Version="1.2.7" />
 		<PackageReference Include="GroupDocs.Parser" Version="24.10.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="RtfPipe" Version="2.0.7677.4303" />
+		<PackageReference Include="SkiaSharp" Version="2.88.9" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\ContentView.xaml.cs">
+	    <DependentUpon>ContentView.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\MainView.xaml.cs">
 	    <DependentUpon>MainView.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Views\ContentView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\ReadView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\SearchView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
