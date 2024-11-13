@@ -2,11 +2,33 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Reader.Views.SearchView"
-             Title="SearchView">
-    <VerticalStackLayout BackgroundColor="#615544">
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             xmlns:vm="clr-namespace:Reader.ViewModels"
+             Shell.NavBarIsVisible="False">
+    <AbsoluteLayout BackgroundColor="#615544">
+        <Grid BackgroundColor="#6D604C"
+            AbsoluteLayout.LayoutFlags="PositionProportional, WidthProportional"
+            AbsoluteLayout.LayoutBounds="0,0,1,-1">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                
+                <ColumnDefinition Width="*"/>
+                
+            </Grid.ColumnDefinitions>
+
+            <!-- Кнопки и иконки на панели -->
+            <ImageButton
+                Margin="6"
+                Command="{Binding GoBackCommand}" 
+                Source="arrow_right.png"
+                WidthRequest="23"
+                HeightRequest="23"
+                VerticalOptions="CenterAndExpand"
+                Grid.Column="0"/>
+        </Grid>
+    </AbsoluteLayout>
 </ContentPage>

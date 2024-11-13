@@ -2,11 +2,67 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Reader.Views.ContentView"
-             Title="ContentView">
+             xmlns:vm="clr-namespace:Reader.ViewModels"
+             xmlns:model="clr-namespace:Reader.Models"
+             xmlns:services="clr-namespace:Reader.Services"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <services:ExpandRotationConverter x:Key="ExpandRotationConverter" />
+
+        <!-- Рекурсивный DataTemplate -->
+        <DataTemplate x:Key="RecursiveTemplate" x:DataType="model:Title">
+            <StackLayout Margin="0, 0, 0, 10">
+                <!-- Нижний отступ для создания промежутка -->
+                <!-- Элемент заголовка с кнопкой для раскрытия -->
+                <Grid ColumnDefinitions="*,auto">
+                    <Label Text="{Binding Name}" 
+                   VerticalOptions="Center" 
+                   BackgroundColor="#6D604C" 
+                   FontSize="17" 
+                   TextColor="White"
+                   Margin="5" />
+                    <Button Text="➤"
+                    Rotation="{Binding IsExpanded, Converter={StaticResource ExpandRotationConverter}}"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ContentViewModel}}, Path=ToggleExpandCommand}"
+                    CommandParameter="{Binding .}"
+                    IsVisible="{Binding SubItems.Count, Converter={StaticResource GreaterThanZeroConverter}}"
+                    HorizontalOptions="End" />
+                </Grid>
+                <CollectionView ItemsSource="{Binding SubItems}" 
+                        ItemTemplate="{StaticResource RecursiveTemplate}" 
+                        IsVisible="{Binding IsExpanded}" 
+                        Margin="20,0,0,0"/>
+            </StackLayout>
+        </DataTemplate>
+
+    </ContentPage.Resources>
+
     <VerticalStackLayout BackgroundColor="#615544">
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+
+        <!-- Верхняя панель с кнопками -->
+        <Grid BackgroundColor="#6D604C">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <ImageButton
+                Margin="8"
+                Command="{Binding GoBackCommand}" 
+                Source="arrow_right.png"
+                WidthRequest="23"
+                HeightRequest="23"
+                VerticalOptions="CenterAndExpand"
+                Grid.Column="0"/>
+        </Grid>
+
+        <!-- Основная CollectionView с заголовками -->
+        <CollectionView ItemsSource="{Binding Titles}" 
+                        SelectionMode="None" 
+                        ItemTemplate="{StaticResource RecursiveTemplate}" />
     </VerticalStackLayout>
 </ContentPage>

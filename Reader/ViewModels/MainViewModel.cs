@@ -1,11 +1,8 @@
 ﻿using Reader.Models;
 using Reader.Services;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
-using Reader.Views;
 
 namespace Reader.ViewModels
 {
