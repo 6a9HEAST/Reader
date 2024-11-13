@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Reader.Views.ContentView"
@@ -12,34 +11,39 @@
 
         <!-- Рекурсивный DataTemplate -->
         <DataTemplate x:Key="RecursiveTemplate" x:DataType="model:Title">
-            <StackLayout Margin="0, 0, 0, 10">
-                <!-- Нижний отступ для создания промежутка -->
-                <!-- Элемент заголовка с кнопкой для раскрытия -->
-                <Grid ColumnDefinitions="*,auto">
+            <StackLayout BackgroundColor="#6D604C" >
+                <!-- Нижний отступ для блока -->
+                <Grid Margin="10">
+                    <!-- Внутренний отступ для текста и кнопки -->
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+
                     <Label Text="{Binding Name}" 
-                   VerticalOptions="Center" 
-                   BackgroundColor="#6D604C" 
-                   FontSize="17" 
-                   TextColor="White"
-                   Margin="5" />
-                    <Button Text="➤"
-                    Rotation="{Binding IsExpanded, Converter={StaticResource ExpandRotationConverter}}"
-                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ContentViewModel}}, Path=ToggleExpandCommand}"
-                    CommandParameter="{Binding .}"
-                    IsVisible="{Binding SubItems.Count, Converter={StaticResource GreaterThanZeroConverter}}"
-                    HorizontalOptions="End" />
+                           VerticalOptions="Center" 
+                           FontSize="17" 
+                           TextColor="White"
+                           />
+
+                    <!--<Button Text="➤"
+                            Rotation="{Binding IsExpanded, Converter={StaticResource ExpandRotationConverter}}"
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ContentViewModel}}, Path=ToggleExpandCommand}"
+                            CommandParameter="{Binding .}"
+                            IsVisible="{Binding SubItems.Count, Converter={StaticResource GreaterThanZeroConverter}}"
+                            HorizontalOptions="End" />-->
                 </Grid>
+
+                <!-- Вложенный CollectionView для подзаголовков -->
                 <CollectionView ItemsSource="{Binding SubItems}" 
-                        ItemTemplate="{StaticResource RecursiveTemplate}" 
-                        IsVisible="{Binding IsExpanded}" 
-                        Margin="20,0,0,0"/>
+                                ItemTemplate="{StaticResource RecursiveTemplate}" 
+                                IsVisible="{Binding IsExpanded}" 
+                                Margin="20,0,0,0"/>
             </StackLayout>
         </DataTemplate>
-
     </ContentPage.Resources>
 
     <VerticalStackLayout BackgroundColor="#615544">
-
         <!-- Верхняя панель с кнопками -->
         <Grid BackgroundColor="#6D604C">
             <Grid.RowDefinitions>
@@ -60,9 +64,12 @@
                 Grid.Column="0"/>
         </Grid>
 
-        <!-- Основная CollectionView с заголовками -->
-        <CollectionView ItemsSource="{Binding Titles}" 
-                        SelectionMode="None" 
-                        ItemTemplate="{StaticResource RecursiveTemplate}" />
+        <!-- Обернутый контейнер для CollectionView -->
+        <StackLayout >
+            <CollectionView  ItemsSource="{Binding Titles}" 
+                            SelectionMode="None" 
+                            ItemTemplate="{StaticResource RecursiveTemplate}">
+            </CollectionView>
+        </StackLayout>
     </VerticalStackLayout>
 </ContentPage>
