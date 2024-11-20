@@ -1,8 +1,6 @@
 ﻿using Reader.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Diagnostics;
+
 
 namespace Reader.Services
 {
@@ -10,13 +8,17 @@ namespace Reader.Services
     {
         readonly List<Book> items;
 
+
         public BookDataStore()
         {
-            items = new List<Book>()
-            {
-                new Book { Id = Guid.NewGuid().ToString(), Author = "Author1", Name="Name1", Collection="Collection1", Type="FB2",Size=54 },
-                new Book { Id = Guid.NewGuid().ToString(), Author = "Author2", Name="Name2", Collection="Collection2", Type="DOCX",Size=5000 }
-            };
+            
+            //items = new List<Book>();
+            //InitializeDataStore(); // Вызов основного метода инициализации
+        }
+
+        private async void InitializeDataStore()
+        {
+            
         }
 
         public async Task<bool> AddItemAsync(Book item)

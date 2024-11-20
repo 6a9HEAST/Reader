@@ -4,12 +4,12 @@ using System.Diagnostics;
 
 namespace Reader.Services.DocReaders
 {
-    public class Fb2DocumentReader:IDocumentReader
+    public class MobiDocumentReader : IDocumentReader
     {
         Parser parser { get; set; }
         string _filePath { get; set; }
-        IEnumerable<MetadataItem> metadata { get;set; }
-        public Fb2DocumentReader(string filePath)
+        IEnumerable<MetadataItem> metadata { get; set; }
+        public MobiDocumentReader(string filePath)
         {
             _filePath = filePath;
             //ReadDocumentAsync();
@@ -65,25 +65,25 @@ namespace Reader.Services.DocReaders
             return null;
         }
         public string GetTitle()
-        {  
+        {
             return metadata.FirstOrDefault(item => item.Name == "title").Value;
         }
         public string GetAuthor()
         {
-            
-            return  metadata.FirstOrDefault(item => item.Name == "author").Value;
+
+            return metadata.FirstOrDefault(item => item.Name == "author").Value;
         }
         public string GetFormat()
         {
-            return "FB2";
+            return "MOBI";
         }
         public string GetFileSize()
         {
             var fileInfo = new FileInfo(_filePath);
-            return ((double)fileInfo.Length/1024/1024).ToString("F1");
+            return ((double)fileInfo.Length / 1024 / 1024).ToString("F1");
         }
     }
 
-        
-    
+
+
 }

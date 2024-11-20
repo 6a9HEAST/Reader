@@ -6,6 +6,7 @@ namespace Reader.Models
     
     public class Title: INotifyPropertyChanged
     {
+        //Класс для заголовков в оглавлении
         public string Name { get; set; }
         private bool isExpanded;
         public ObservableCollection<Title> SubItems { get; set; } = new ObservableCollection<Title>();

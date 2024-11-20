@@ -1,4 +1,5 @@
-﻿using Reader.Models;
+﻿using Microsoft.VisualBasic;
+using Reader.Models;
 using Reader.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -14,14 +15,16 @@ namespace Reader.ViewModels
         public Command LoadItemsCommand { get; }
         public Command AddItemCommand { get; }
         public Command<Book> ItemTapped { get; }
+        
 
         public MainViewModel(IDataStore<Book> dataStore) : base(dataStore)
         {
+            
             Title = "About";
             Items = new ObservableCollection<Book>();
 
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
-            //Task.Run(async () => await ExecuteLoadItemsCommand());
+            
             LoadItemsCommand.Execute(null);
             ItemTapped = new Command<Book>(OnItemSelected);
             
@@ -73,7 +76,9 @@ namespace Reader.ViewModels
 
         private async void OnAddItem(object obj)
         {
-            //await Shell.Current.GoToAsync(nameof(NewItemPage));
+            var book = await FileScanner.GetBookFromFile();
+
+            if (book != null) Items.Add(book);
         }
 
         async void OnItemSelected(Book item)

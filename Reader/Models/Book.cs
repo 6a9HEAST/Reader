@@ -9,11 +9,12 @@ namespace Reader.Models
     public class Book
     {
         public string Id { get; set; }
-        public string? Cover { get; set; }
+        public ImageSource? Cover { get; set; }
         public string Name { get; set; }
         public string? Author { get; set; }
-        public string? Collection { get; set; }
-        public string? Type { get; set; }
-        public float Size { get; set; }
+        public string Type { get; set; }
+        public string Size { get; set; }
+        public string Path { get; set; }
+        public DateTime LastTimeOpened { get; set; }
     }
 }

@@ -1,19 +1,35 @@
 ﻿using EpubSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GroupDocs.Parser;
+using GroupDocs.Parser.Data;
+using System.Diagnostics;
 
 namespace Reader.Services.DocReaders
 {
     public class EpubDocumentReader : IDocumentReader
     {
-        EpubBook epub;
-
-        public void ReadDocument(string filePath)
+        EpubBook epub { get; set; }
+        string _filePath { get; set; }
+        public EpubDocumentReader(string filePath)
         {
-            epub = EpubReader.Read(filePath);
+            _filePath = filePath;
+            
+        }
+
+        public async Task ReadDocumentAsync()
+        {
+            try
+            {
+                // Выполнение на отдельном потоке
+                await Task.Run(() =>
+                {
+                    epub = EpubReader.Read(_filePath);
+
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error while reading document: {ex.Message}");
+            }
         }
         public string ExtractText()
         {
@@ -26,20 +42,14 @@ namespace Reader.Services.DocReaders
             var coverImage = epub.CoverImage;
             return coverImage != null ? ImageSource.FromStream(() => new MemoryStream(coverImage)) : null;
         }
-
         public string GetTitle()
         {
             return epub.Title ?? "Без названия";
         }
 
-        public IEnumerable<string> GetAuthor()
+        public string GetAuthor()
         {
-            return epub.Authors;
-        }
-
-        public string GetCollection()
-        {
-            return ""; // доделать
+            return epub.Authors.FirstOrDefault<string>();
         }
 
         public string GetFormat()
@@ -47,10 +57,10 @@ namespace Reader.Services.DocReaders
             return "EPUB";
         }
 
-        public string GetFileSize(string filePath)
+        public string GetFileSize()
         {
-            var fileInfo = new FileInfo(filePath);
-            return fileInfo.Length.ToString();
+            var fileInfo = new FileInfo(_filePath);
+            return ((double)fileInfo.Length / 1024 / 1024).ToString("F1");
         }
     }
 }

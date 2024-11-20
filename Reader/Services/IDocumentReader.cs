@@ -8,13 +8,13 @@ namespace Reader.Services
 {
     public interface IDocumentReader
     {
-        void ReadDocument(string filePath);
+        
+        Task ReadDocumentAsync();
         string ExtractText(); // Метод для извлечения текста
         ImageSource GetCover(); // Метод для получения обложки
         string GetTitle(); // Название
-        IEnumerable<string> GetAuthor(); // Автор
-        string GetCollection(); // Собрание (если есть)
+        string GetAuthor(); // Автор
         string GetFormat(); // Формат документа (например, EPUB, FB2)
-        string GetFileSize(string filePath); // Размер файла
+        string GetFileSize(); // Размер файла
     }
 }

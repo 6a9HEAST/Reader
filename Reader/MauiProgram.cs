@@ -4,6 +4,7 @@ using Reader.Views;
 using Reader.Models;
 using Reader.ViewModels;
 using FFImageLoading.Maui;
+//using Microsoft.Maui.Essentials;
 
 namespace Reader
 {
@@ -11,9 +12,12 @@ namespace Reader
     {
         public static MauiApp CreateMauiApp()
         {
+            
+            
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                //.UseMauiEssentials()
                 .UseFFImageLoading()
                 .ConfigureFonts(fonts =>
                 {
@@ -31,6 +35,8 @@ namespace Reader
                 .AddSingleton<ReadView>()
                 .AddSingleton<SearchView>()
                 .AddSingleton<Reader.Views.ContentView>();
+
+
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
