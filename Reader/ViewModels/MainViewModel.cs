@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using Reader.Models;
+﻿using Reader.Models;
 using Reader.Services;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -83,8 +82,11 @@ namespace Reader.ViewModels
 
         async void OnItemSelected(Book item)
         {
-            
-                await Shell.Current.GoToAsync("ReadView");
+
+            if (item == null)
+                return;
+
+            await Shell.Current.GoToAsync($"ReadView?path={Uri.EscapeDataString(item.Path)}");
 
             // This will push the ItemDetailPage onto the navigation stack
             //await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?{nameof(ItemDetailViewModel.ItemId)}={item.Id}");

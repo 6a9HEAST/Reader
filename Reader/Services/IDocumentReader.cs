@@ -10,7 +10,7 @@ namespace Reader.Services
     {
         
         Task ReadDocumentAsync();
-        string ExtractText(); // Метод для извлечения текста
+        Task<List<FormattedString>> GetText(); // Метод для извлечения текста
         ImageSource GetCover(); // Метод для получения обложки
         string GetTitle(); // Название
         string GetAuthor(); // Автор

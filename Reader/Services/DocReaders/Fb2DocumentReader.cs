@@ -1,6 +1,8 @@
 ﻿using GroupDocs.Parser;
 using GroupDocs.Parser.Data;
 using System.Diagnostics;
+using Microsoft.Maui.Devices;
+using System.Threading.Tasks;
 
 namespace Reader.Services.DocReaders
 {
@@ -23,6 +25,7 @@ namespace Reader.Services.DocReaders
                 await Task.Run(() =>
                 {
                     parser = new Parser(_filePath);
+                    Debug.WriteLine("Создан Parser");
                     metadata = parser.GetMetadata();
                 });
 
@@ -38,9 +41,12 @@ namespace Reader.Services.DocReaders
             }
         }
 
-        public string ExtractText()
+        public async Task<List<FormattedString>> GetText()
         {
-            return "";
+            var displayInfo = DeviceDisplay.MainDisplayInfo;
+
+
+            return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 16, 1.5, parser);
         }
 
         public ImageSource GetCover()

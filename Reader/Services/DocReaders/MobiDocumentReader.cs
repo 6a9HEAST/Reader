@@ -38,9 +38,12 @@ namespace Reader.Services.DocReaders
             }
         }
 
-        public string ExtractText()
+        public async Task<List<FormattedString>> GetText()
         {
-            return "";
+            DisplayInfo displayInfo = new DisplayInfo();
+
+
+            return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 25, 2, parser);
         }
 
         public ImageSource GetCover()

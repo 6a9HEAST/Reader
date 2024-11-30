@@ -11,9 +11,7 @@
 
         <!-- Основное содержимое страницы -->
         <StackLayout BackgroundColor="#FFE3C2" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-            <Label Text="Основное содержимое страницы"
-                   VerticalOptions="Center"
-                   HorizontalOptions="Center" />
+            <Label FormattedText="{Binding CurrentPage}" />
 
             <StackLayout.GestureRecognizers>
                 <TapGestureRecognizer 
@@ -58,8 +56,7 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-
-            <!-- Кнопки и иконки на панели -->
+            
             <ImageButton 
              Command="{Binding GoBackCommand}" 
              Source="arrow_right.png"
@@ -98,7 +95,7 @@
              Grid.Column="4"
              HorizontalOptions="End"/>
 
-            <!-- Тексты в разных строках -->
+            <!--Заголовок и номер страницы внутри главы-->
             <Label Text="Label"
                Margin="6,0,0,0"
                LineBreakMode="NoWrap" 

@@ -1,12 +1,15 @@
 ﻿using EpubSharp;
 using GroupDocs.Parser;
 using GroupDocs.Parser.Data;
+using RtfPipe;
 using System.Diagnostics;
+using Parser = GroupDocs.Parser.Parser;
 
 namespace Reader.Services.DocReaders
 {
     public class EpubDocumentReader : IDocumentReader
     {
+        Parser parser { get; set; }
         EpubBook epub { get; set; }
         string _filePath { get; set; }
         public EpubDocumentReader(string filePath)
@@ -19,22 +22,45 @@ namespace Reader.Services.DocReaders
         {
             try
             {
-                // Выполнение на отдельном потоке
-                await Task.Run(() =>
-                {
-                    epub = EpubReader.Read(_filePath);
+                byte[] fileBytes = await File.ReadAllBytesAsync(_filePath);
 
-                });
+                // Parse the document using Parser with MemoryStream
+                using (MemoryStream ms = new MemoryStream(fileBytes))
+                {
+                    parser = new Parser(ms);
+                }
+
+                // Create a temporary file
+                string tempFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".epub");
+                await File.WriteAllBytesAsync(tempFilePath, fileBytes);
+
+                try
+                {
+                    // Read the EPUB using EpubReader
+                    epub = EpubReader.Read(tempFilePath);
+                }
+                finally
+                {
+                    // Ensure the temporary file is deleted
+                    if (File.Exists(tempFilePath))
+                    {
+                        File.Delete(tempFilePath);
+                    }
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error while reading document: {ex.Message}");
             }
+
+
         }
-        public string ExtractText()
+        public async Task<List<FormattedString>> GetText()
         {
-            
-            return epub.ToPlainText();
+            DisplayInfo displayInfo = new DisplayInfo();
+
+
+            return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 25, 2, parser);
         }
 
         public ImageSource GetCover()
