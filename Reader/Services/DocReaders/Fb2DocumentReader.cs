@@ -46,7 +46,7 @@ namespace Reader.Services.DocReaders
             var displayInfo = DeviceDisplay.MainDisplayInfo;
 
 
-            return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 16, 1.5, parser);
+            return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 12, 1.5, parser);
         }
 
         public ImageSource GetCover()

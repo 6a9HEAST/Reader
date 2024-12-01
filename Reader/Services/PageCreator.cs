@@ -15,7 +15,7 @@ namespace Reader.Services
             if (!parser.Features.Text)
                 throw new NotSupportedException("Документ не поддерживает извлечение текста.");
 
-            var options = new FormattedTextOptions(FormattedTextMode.PlainText);
+            var options = new FormattedTextOptions(FormattedTextMode.Markdown);
             string fullText;
 
             using (var reader = parser.GetFormattedText(options))
@@ -35,24 +35,27 @@ namespace Reader.Services
             var aggregatedBlocks = AggregateTextBlocks(paragraphs, 10);
             //Debug.WriteLine($"Агрегированных блоков: {aggregatedBlocks.Count}");
 
-            var localPagesLists = new List<List<FormattedString>>();
+            var localPagesLists = new List<(int Index, List<FormattedString> Pages)>();
 
-            Parallel.ForEach(aggregatedBlocks, aggregatedBlock =>
+            Parallel.ForEach(aggregatedBlocks.Select((block, index) => (block, index)), item =>
             {
-                var localPages = new List<FormattedString>();
-                var blockPages = ProcessTextBlock(aggregatedBlock, pageWidth, pageHeight, fontSize, lineHeight);
-                localPages.AddRange(blockPages);
+                var localPages = ProcessTextBlock(item.block, pageWidth, pageHeight, fontSize, lineHeight);
                 lock (localPagesLists)
                 {
-                    localPagesLists.Add(localPages);
+                    localPagesLists.Add((item.index, localPages));
                 }
             });
 
-            var pages = new List<FormattedString>();
-            foreach (var localPages in localPagesLists)
-            {
-                pages.AddRange(localPages);
-            }
+            var pages = localPagesLists
+                .OrderBy(pair => pair.Index) // Сортируем по индексу
+                .SelectMany(pair => pair.Pages)
+                .ToList();
+
+            //var pages = new List<FormattedString>();
+            //foreach (var localPages in localPagesLists)
+            //{
+            //    pages.AddRange(localPages);
+            //}
 
             //watch.Stop();
             //Debug.WriteLine($"Время обработки: {watch.ElapsedMilliseconds} мс");
@@ -64,24 +67,31 @@ namespace Reader.Services
         {
             var aggregatedBlocks = new List<string>();
             var stringBuilder = new StringBuilder();
+            int currentLineCount = 0;
 
             foreach (var paragraph in paragraphs)
             {
+                var lines = paragraph.Split('\n'); // Считаем строки в параграфе
+                currentLineCount += lines.Length;
+
                 stringBuilder.AppendLine(paragraph);
-                if (stringBuilder.ToString().Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries).Length >= chunkSize)
+
+                if (currentLineCount >= chunkSize)
                 {
-                    aggregatedBlocks.Add(stringBuilder.ToString());
+                    aggregatedBlocks.Add(stringBuilder.ToString().Trim()); // Добавляем текущий блок
                     stringBuilder.Clear();
+                    currentLineCount = 0;
                 }
             }
 
-            if (stringBuilder.Length > 0)
+            if (stringBuilder.Length > 0) // Добавляем оставшийся текст
             {
-                aggregatedBlocks.Add(stringBuilder.ToString());
+                aggregatedBlocks.Add(stringBuilder.ToString().Trim());
             }
 
             return aggregatedBlocks;
         }
+
 
         private static List<FormattedString> ProcessTextBlock(
             string textBlock, double pageWidth, double pageHeight, double fontSize, double lineHeight)
@@ -94,15 +104,18 @@ namespace Reader.Services
 
             foreach (var line in lines)
             {
-                var lineHeightWithSpacing = fontSize * 1.2 * lineHeight;
+                var lineHeightWithSpacing = fontSize * lineHeight;
 
+                // Проверяем, помещается ли текущая строка на страницу
                 if (currentHeight + lineHeightWithSpacing > pageHeight)
                 {
-                    pages.Add(CreateFormattedString(currentPageText.ToString()));
+                    // Создаем текущую страницу
+                    pages.Add(CreateFormattedString(currentPageText.ToString(), fontSize));
                     currentPageText.Clear();
                     currentHeight = 0;
                 }
 
+                // Добавляем строку на текущую страницу
                 if (currentPageText.Length > 0)
                 {
                     currentPageText.AppendLine();
@@ -112,13 +125,15 @@ namespace Reader.Services
                 currentHeight += lineHeightWithSpacing;
             }
 
-            if (currentPageText.Length > 0)
+
+            if (currentPageText.Length > 0) // Добавляем оставшийся текст
             {
-                pages.Add(CreateFormattedString(currentPageText.ToString()));
+                pages.Add(CreateFormattedString(currentPageText.ToString(), fontSize));
             }
 
             return pages;
         }
+
 
         private static List<string> SplitTextIntoLines(string text, double pageWidth, double fontSize)
         {
@@ -126,16 +141,42 @@ namespace Reader.Services
             var currentLine = new StringBuilder();
             double currentLineWidth = 0;
 
-            double averageCharWidth = fontSize * 0.6;
+            double averageCharWidth = fontSize * 0.6; // Средняя ширина символа
             var words = text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var word in words)
             {
                 var wordWidth = word.Length * averageCharWidth;
 
+                // Если слово само по себе слишком длинное, оно должно быть перенесено
+                if (wordWidth > pageWidth)
+                {
+                    if (currentLine.Length > 0)
+                    {
+                        lines.Add(currentLine.ToString().Trim());
+                        currentLine.Clear();
+                        currentLineWidth = 0;
+                    }
+
+                    // Разбиваем длинное слово
+                    for (int i = 0; i < word.Length; i++)
+                    {
+                        currentLine.Append(word[i]);
+                        currentLineWidth += averageCharWidth;
+
+                        if (currentLineWidth > pageWidth)
+                        {
+                            lines.Add(currentLine.ToString());
+                            currentLine.Clear();
+                            currentLineWidth = 0;
+                        }
+                    }
+                    continue; // Переходим к следующему слову
+                }
+
                 if (currentLineWidth + wordWidth > pageWidth)
                 {
-                    lines.Add(currentLine.ToString());
+                    lines.Add(currentLine.ToString().Trim());
                     currentLine.Clear();
                     currentLineWidth = 0;
                 }
@@ -143,7 +184,7 @@ namespace Reader.Services
                 if (currentLine.Length > 0)
                 {
                     currentLine.Append(' ');
-                    currentLineWidth += averageCharWidth; // Add space width
+                    currentLineWidth += averageCharWidth; // Учитываем пробел
                 }
 
                 currentLine.Append(word);
@@ -152,13 +193,13 @@ namespace Reader.Services
 
             if (currentLine.Length > 0)
             {
-                lines.Add(currentLine.ToString());
+                lines.Add(currentLine.ToString().Trim());
             }
 
             return lines;
         }
 
-        private static FormattedString CreateFormattedString(string text)
+        private static FormattedString CreateFormattedString(string text,double fontSize)
         {
             var formattedString = new FormattedString();
 
@@ -170,7 +211,16 @@ namespace Reader.Services
                     formattedString.Spans.Add(new Span
                     {
                         Text = line.Substring(2) + "\n",
-                        FontSize = 20,
+                        FontSize = fontSize+4,
+                        FontAttributes = FontAttributes.Bold
+                    });
+                }
+                else if (line.StartsWith("## ")) // Условный заголовок
+                {
+                    formattedString.Spans.Add(new Span
+                    {
+                        Text = line.Substring(2) + "\n",
+                        FontSize = fontSize + 3,
                         FontAttributes = FontAttributes.Bold
                     });
                 }
@@ -179,7 +229,7 @@ namespace Reader.Services
                     formattedString.Spans.Add(new Span
                     {
                         Text = line + "\n",
-                        FontSize = 16,
+                        FontSize = fontSize,
                         FontAttributes = FontAttributes.None
                     });
                 }

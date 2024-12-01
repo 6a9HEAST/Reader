@@ -60,7 +60,7 @@ namespace Reader.Services.DocReaders
             DisplayInfo displayInfo = new DisplayInfo();
 
 
-            return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 25, 2, parser);
+            return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 25, 1.5, parser);
         }
 
         public ImageSource GetCover()

@@ -10,17 +10,49 @@
     <AbsoluteLayout>
 
         <!-- Основное содержимое страницы -->
-        <StackLayout BackgroundColor="#FFE3C2" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-            <Label FormattedText="{Binding CurrentPage}" />
+        <StackLayout BackgroundColor="#FFE3C2" 
+                     AbsoluteLayout.LayoutFlags="All" 
+                     AbsoluteLayout.LayoutBounds="0,0,1,1">
+            <Label FormattedText="{Binding CurrentPage}"                    
+       LineBreakMode="WordWrap" 
+       VerticalOptions="StartAndExpand" 
+       HorizontalOptions="FillAndExpand" 
+       TextColor="Black" />
 
-            <StackLayout.GestureRecognizers>
+        </StackLayout>
+
+        <!--часть для перелистывания влево-->
+        <BoxView BackgroundColor="Transparent"
+         AbsoluteLayout.LayoutFlags="HeightProportional, WidthProportional, PositionProportional"
+         AbsoluteLayout.LayoutBounds="0, 0.5, 0.33, 1">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer 
+            NumberOfTapsRequired="1"
+            Command="{Binding GoToPreviousPageCommand}" />
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!--часть для открытия оверлея-->
+        <BoxView BackgroundColor="Transparent"
+                 AbsoluteLayout.LayoutFlags="HeightProportional, WidthProportional, PositionProportional"
+                 AbsoluteLayout.LayoutBounds="0.5, 0.5, 0.34, 1">
+            <BoxView.GestureRecognizers>
                 <TapGestureRecognizer 
                     NumberOfTapsRequired="1"
-                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReadViewModel}}, Path=ShowOverlayCommand}"		
-                    CommandParameter="{Binding .}">
-                </TapGestureRecognizer>
-            </StackLayout.GestureRecognizers>
-        </StackLayout>
+                    Command="{Binding ShowOverlayCommand}" />
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!--часть для перелистывания вправо-->
+        <BoxView BackgroundColor="Transparent"
+                 AbsoluteLayout.LayoutFlags="HeightProportional, WidthProportional, PositionProportional"
+                 AbsoluteLayout.LayoutBounds="1, 0.5, 0.33, 1">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer 
+                    NumberOfTapsRequired="1"
+                    Command="{Binding GoToNextPageCommand}" />
+            </BoxView.GestureRecognizers>
+        </BoxView>
 
         <!-- Прозрачный слой для закрытия оверлея при клике вне панелей -->
         <BoxView BackgroundColor="Transparent"

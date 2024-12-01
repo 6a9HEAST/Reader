@@ -9,20 +9,21 @@ namespace Reader.ViewModels
     public class ReadViewModel : BaseViewModel
     {
         private bool _isOverlayVisible;
-        //public List<FormattedString> Pages { get; set; }
-
         public bool IsOverlayVisible
         {
             get => _isOverlayVisible;
             set => SetProperty(ref _isOverlayVisible, value);
         }
-        public string _filePath{get;set;}
 
+        public string _filePath{get;set;}
         public ICommand ShowOverlayCommand { get; }
         public ICommand HideOverlayCommand { get; }
         public ICommand GoBackCommand { get; }
         public ICommand OpenSearchCommand { get; }
         public ICommand OpenContentCommand { get; }
+        public ICommand GoToPreviousPageCommand { get; }
+        public ICommand GoToNextPageCommand { get; }
+
 
         protected readonly IDataStore<Book> DataStore;
 
@@ -40,14 +41,14 @@ namespace Reader.ViewModels
             }
         }
 
-        private List<FormattedString> _myPages = new List<FormattedString>();
-        public List<FormattedString> MyPages
+        private List<FormattedString> _pages = new List<FormattedString>();
+        public List<FormattedString> Pages
         {
-            get { return _myPages; }
+            get { return _pages; }
             set
             {
-                _myPages = value;
-                OnPropertyChanged(nameof(MyPages));
+                _pages = value;
+                OnPropertyChanged(nameof(Pages));
                 OnPropertyChanged(nameof(CurrentPage));
             }
         }
@@ -56,21 +57,19 @@ namespace Reader.ViewModels
         {
             get
             {
-                if (_myPages != null && _currentPageIndex >= 0 && _currentPageIndex < _myPages.Count)
-                    return _myPages[_currentPageIndex];
+                if (_pages != null && _currentPageIndex >= 0 && _currentPageIndex < _pages.Count)
+                    return _pages[_currentPageIndex];
                 return null;
             }
         }
 
         public ReadViewModel(IDataStore<Book> dataStore) : base(dataStore)
         {
-            
-            
-
-            
 
             IsOverlayVisible = false;
             DataStore = dataStore;
+            GoToPreviousPageCommand = new Command(() => GoToPreviousPage());
+            GoToNextPageCommand = new Command(() => GoToNextPage());
             ShowOverlayCommand = new Command(ShowOverlay);
             HideOverlayCommand = new Command(HideOverlay);
             GoBackCommand = new Command(GoBack);
@@ -83,9 +82,9 @@ namespace Reader.ViewModels
             _filePath = path;
             var reader = DocumentReaderFactory.GetReader(_filePath);
             await reader.ReadDocumentAsync();
-            MyPages = await reader.GetText();
+            Pages = await reader.GetText();
 
-            foreach (var page in MyPages)
+            foreach (var page in Pages)
             {
                 Debug.WriteLine(page);
             }
@@ -97,7 +96,6 @@ namespace Reader.ViewModels
         
         private void ShowOverlay()
         {
-            //CurrentPageIndex--;
             IsOverlayVisible = true;
         }
 
@@ -121,5 +119,21 @@ namespace Reader.ViewModels
             await Shell.Current.GoToAsync("ContentView");
         }
 
+        private void GoToPreviousPage()
+        {
+                 if (CurrentPageIndex > 0)
+            {
+                CurrentPageIndex--;                
+            }
+        }
+
+        private void GoToNextPage()
+        {
+            
+            //if (CurrentPageIndex < Pages.Count - 1)
+            //{
+            CurrentPageIndex++;                
+            //}
+        }
     }
 }
