@@ -96,7 +96,7 @@
             </Grid.ColumnDefinitions>
             
             <ImageButton 
-                Margin="0,6,0,0" 
+                Margin="6,0,0,0" 
              Command="{Binding GoBackCommand}" 
              Source="arrow_right.png"
              WidthRequest="23"
