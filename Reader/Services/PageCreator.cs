@@ -1,241 +1,181 @@
-﻿using System.Text;
-using GroupDocs.Parser;
+﻿using GroupDocs.Parser;
 using GroupDocs.Parser.Options;
+using HtmlAgilityPack;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
+using System.Xml;
+using Reader.Models;
+using Xceed.Document.NET;
+using System.Diagnostics;
 
 namespace Reader.Services
 {
     public static class PageCreator
     {
-        public static List<FormattedString> ExtractPagesWithFormatting(
-            double pageWidth, double pageHeight, double fontSize, double lineHeight, Parser parser)
-        {
-            //Debug.WriteLine("Начало создания страниц");
-            //var watch = Stopwatch.StartNew();
 
+        public static List<HtmlWebViewSource> ExtractPagesWithFormatting(
+    double pageWidth, double pageHeight, int fontSize, double lineHeight,
+    Parser parser, ObservableCollection<Title> tableOfContents)
+        {
             if (!parser.Features.Text)
                 throw new NotSupportedException("Документ не поддерживает извлечение текста.");
 
-            var options = new FormattedTextOptions(FormattedTextMode.Markdown);
-            string fullText;
-
+            var options = new FormattedTextOptions(FormattedTextMode.Html);
+            string fullHtml;
             using (var reader = parser.GetFormattedText(options))
             {
-                fullText = reader.ReadToEnd();
+                fullHtml = reader.ReadToEnd();
             }
+            fullHtml = fullHtml.Replace("<br>", "");
+            fullHtml = fullHtml.Replace("</br>", "");
+            var pages = new List<HtmlWebViewSource>();
+            //tableOfContents.Clear();
 
-            //Debug.WriteLine("Текст прочитан.");
-            //watch.Stop();
-            //Debug.WriteLine($"Время чтения текста: {watch.ElapsedMilliseconds} мс");
-            //watch.Reset();
-            //watch.Start();
+            // Используем HtmlAgilityPack для обработки разметки
+            var document = new HtmlDocument();
+            document.LoadHtml(fullHtml);
+            var nodes = document.DocumentNode.SelectNodes("//body//node()")
+                       ?? document.DocumentNode.SelectNodes("//*")
+                      ?? new HtmlNodeCollection(document.DocumentNode);
 
-            var paragraphs = fullText.Split(new[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
-            //Debug.WriteLine($"Извлечено параграфов: {paragraphs.Length}");
+            if (nodes == null || nodes.Count == 0)
+                throw new InvalidOperationException("Не удалось найти узлы в документе.");
 
-            var aggregatedBlocks = AggregateTextBlocks(paragraphs, 10);
-            //Debug.WriteLine($"Агрегированных блоков: {aggregatedBlocks.Count}");
+            string currentPageContent="";
+            var currentHeight = 0.0;
+            Title currentTitle = null;
 
-            var localPagesLists = new List<(int Index, List<FormattedString> Pages)>();
-
-            Parallel.ForEach(aggregatedBlocks.Select((block, index) => (block, index)), item =>
+            foreach (var node in nodes)
             {
-                var localPages = ProcessTextBlock(item.block, pageWidth, pageHeight, fontSize, lineHeight);
-                lock (localPagesLists)
+                if (IsHeader(node))
                 {
-                    localPagesLists.Add((item.index, localPages));
-                }
-            });
+                    int headerLevel = GetHeaderLevel(node.Name);
 
-            var pages = localPagesLists
-                .OrderBy(pair => pair.Index) // Сортируем по индексу
-                .SelectMany(pair => pair.Pages)
-                .ToList();
-
-            //var pages = new List<FormattedString>();
-            //foreach (var localPages in localPagesLists)
-            //{
-            //    pages.AddRange(localPages);
-            //}
-
-            //watch.Stop();
-            //Debug.WriteLine($"Время обработки: {watch.ElapsedMilliseconds} мс");
-
-            return pages;
-        }
-
-        private static List<string> AggregateTextBlocks(string[] paragraphs, int chunkSize)
-        {
-            var aggregatedBlocks = new List<string>();
-            var stringBuilder = new StringBuilder();
-            int currentLineCount = 0;
-
-            foreach (var paragraph in paragraphs)
-            {
-                var lines = paragraph.Split('\n'); // Считаем строки в параграфе
-                currentLineCount += lines.Length;
-
-                stringBuilder.AppendLine(paragraph);
-
-                if (currentLineCount >= chunkSize)
-                {
-                    aggregatedBlocks.Add(stringBuilder.ToString().Trim()); // Добавляем текущий блок
-                    stringBuilder.Clear();
-                    currentLineCount = 0;
-                }
-            }
-
-            if (stringBuilder.Length > 0) // Добавляем оставшийся текст
-            {
-                aggregatedBlocks.Add(stringBuilder.ToString().Trim());
-            }
-
-            return aggregatedBlocks;
-        }
-
-
-        private static List<FormattedString> ProcessTextBlock(
-            string textBlock, double pageWidth, double pageHeight, double fontSize, double lineHeight)
-        {
-            var pages = new List<FormattedString>();
-            var lines = SplitTextIntoLines(textBlock, pageWidth, fontSize);
-
-            var currentPageText = new StringBuilder();
-            double currentHeight = 0;
-
-            foreach (var line in lines)
-            {
-                var lineHeightWithSpacing = fontSize * lineHeight;
-
-                // Проверяем, помещается ли текущая строка на страницу
-                if (currentHeight + lineHeightWithSpacing > pageHeight)
-                {
-                    // Создаем текущую страницу
-                    pages.Add(CreateFormattedString(currentPageText.ToString(), fontSize));
-                    currentPageText.Clear();
-                    currentHeight = 0;
-                }
-
-                // Добавляем строку на текущую страницу
-                if (currentPageText.Length > 0)
-                {
-                    currentPageText.AppendLine();
-                }
-
-                currentPageText.Append(line);
-                currentHeight += lineHeightWithSpacing;
-            }
-
-
-            if (currentPageText.Length > 0) // Добавляем оставшийся текст
-            {
-                pages.Add(CreateFormattedString(currentPageText.ToString(), fontSize));
-            }
-
-            return pages;
-        }
-
-
-        private static List<string> SplitTextIntoLines(string text, double pageWidth, double fontSize)
-        {
-            var lines = new List<string>();
-            var currentLine = new StringBuilder();
-            double currentLineWidth = 0;
-
-            double averageCharWidth = fontSize * 0.6; // Средняя ширина символа
-            var words = text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var word in words)
-            {
-                var wordWidth = word.Length * averageCharWidth;
-
-                // Если слово само по себе слишком длинное, оно должно быть перенесено
-                if (wordWidth > pageWidth)
-                {
-                    if (currentLine.Length > 0)
+                    // Если заголовок нового типа — завершаем текущую страницу
+                    if (currentTitle != null && headerLevel != currentTitle.SubItems.Count + 1)
                     {
-                        lines.Add(currentLine.ToString().Trim());
-                        currentLine.Clear();
-                        currentLineWidth = 0;
+                        pages.Add(new HtmlWebViewSource { Html = WrapInHtml(currentPageContent, fontSize) });
+                        currentPageContent="";
+                        currentHeight = 0;
                     }
 
-                    // Разбиваем длинное слово
-                    for (int i = 0; i < word.Length; i++)
+                    // Добавляем заголовок в оглавление
+                    var newTitle = new Title { Name = node.InnerText.Trim() };
+                    if (currentTitle == null || headerLevel == 1)
                     {
-                        currentLine.Append(word[i]);
-                        currentLineWidth += averageCharWidth;
-
-                        if (currentLineWidth > pageWidth)
-                        {
-                            lines.Add(currentLine.ToString());
-                            currentLine.Clear();
-                            currentLineWidth = 0;
-                        }
+                        tableOfContents.Add(newTitle);
                     }
-                    continue; // Переходим к следующему слову
-                }
-
-                if (currentLineWidth + wordWidth > pageWidth)
-                {
-                    lines.Add(currentLine.ToString().Trim());
-                    currentLine.Clear();
-                    currentLineWidth = 0;
-                }
-
-                if (currentLine.Length > 0)
-                {
-                    currentLine.Append(' ');
-                    currentLineWidth += averageCharWidth; // Учитываем пробел
-                }
-
-                currentLine.Append(word);
-                currentLineWidth += wordWidth;
-            }
-
-            if (currentLine.Length > 0)
-            {
-                lines.Add(currentLine.ToString().Trim());
-            }
-
-            return lines;
-        }
-
-        private static FormattedString CreateFormattedString(string text,double fontSize)
-        {
-            var formattedString = new FormattedString();
-
-            // Пример: добавление разных стилей в зависимости от содержимого
-            foreach (var line in text.Split('\n'))
-            {
-                if (line.StartsWith("# ")) // Условный заголовок
-                {
-                    formattedString.Spans.Add(new Span
+                    else
                     {
-                        Text = line.Substring(2) + "\n",
-                        FontSize = fontSize+4,
-                        FontAttributes = FontAttributes.Bold
-                    });
-                }
-                else if (line.StartsWith("## ")) // Условный заголовок
-                {
-                    formattedString.Spans.Add(new Span
-                    {
-                        Text = line.Substring(2) + "\n",
-                        FontSize = fontSize + 3,
-                        FontAttributes = FontAttributes.Bold
-                    });
+                        AddToTitleHierarchy(tableOfContents, newTitle, headerLevel);
+                    }
+
+                    currentTitle = newTitle;
+
+                    // Добавляем заголовок на текущую страницу
+                    currentPageContent+=node.OuterHtml;
+                    currentHeight += CalculateBlockHeight(node.OuterHtml, pageWidth, fontSize, lineHeight);
                 }
                 else
                 {
-                    formattedString.Spans.Add(new Span
+                    // Обрабатываем текстовые блоки
+                    var blockHeight = CalculateBlockHeight(node.OuterHtml, pageWidth, fontSize, lineHeight);
+
+                    if (currentHeight + blockHeight > pageHeight)
                     {
-                        Text = line + "\n",
-                        FontSize = fontSize,
-                        FontAttributes = FontAttributes.None
-                    });
+                        // Заканчиваем текущую страницу
+                        pages.Add(new HtmlWebViewSource { Html = WrapInHtml(currentPageContent.ToString(), fontSize) });
+                        currentPageContent = "";
+                        currentHeight = 0;
+                    }
+
+                    currentPageContent += node.OuterHtml;
+                    currentHeight += blockHeight;
                 }
             }
 
-            return formattedString;
+            // Добавляем последнюю страницу
+            if (currentPageContent.Length > 0)
+            {
+                pages.Add(new HtmlWebViewSource { Html = WrapInHtml(currentPageContent.ToString(), fontSize) });
+            }
+
+            Debug.WriteLine($"TableOfContents Count: {tableOfContents.Count}");
+            foreach (var item in tableOfContents)
+            {
+                Debug.WriteLine($"Title: {item.Name}");
+            }
+
+            return pages;
         }
+
+        private static bool IsHeader(HtmlNode node) =>
+    node.Name.StartsWith("h", StringComparison.OrdinalIgnoreCase) &&
+    int.TryParse(node.Name.Substring(1), out _);
+
+        private static int GetHeaderLevel(string tagName)
+        {
+            if (int.TryParse(tagName.Substring(1), out int level))
+                return level;
+
+            return int.MaxValue; // Если уровень не определен
+        }
+
+        private static void AddToTitleHierarchy(ObservableCollection<Title> titles, Title newTitle, int level)
+        {
+            Title parent = null;
+            var currentLevel = titles;
+
+            for (int i = 1; i < level; i++)
+            {
+                if (currentLevel.Count == 0)
+                    break;
+
+                parent = currentLevel.Last();
+                currentLevel = parent.SubItems;
+            }
+
+            currentLevel.Add(newTitle);
+        }
+
+
+        private static double CalculateBlockHeight(string block, double pageWidth, int fontSize, double lineHeight)
+        {
+            int charCount = block.Length;
+            double charsPerLine = pageWidth / (fontSize * 0.6);
+            double lines = Math.Ceiling(charCount / charsPerLine);
+            return lines * fontSize * lineHeight;
+        }
+
+
+        private static string WrapInHtml(string content, int fontSize)
+        {
+            string settings = $"<style type=\"text/css\"> " +
+                $"p {{ margin: 0; text-indent: 1.5em; line-height: 1.5; }} " +
+                $"h1, h2, h3, h4, h5, h6 {{ text-align: center; margin: 0; }} " +
+                $"body {{ font-family: serif; font-size: {fontSize}px; text-align: justify; }}" +
+                $"</style>";
+
+            return $"<html><head>{settings}</head><body>{content}</body></html>";
+        }
+
+
+
+        private static void ParseHtmlNode(HtmlNode node, FormattedString formattedString, double fontSize)
+        {
+            // Добавляем содержимое узла в `FormattedString` с учетом стилей
+            foreach (var line in node.InnerText.Split('\n'))
+            {
+                var span = new Span
+                {
+                    Text = line + "\n",
+                    FontSize = fontSize,
+                    FontAttributes = node.Name.StartsWith("h") ? FontAttributes.Bold : FontAttributes.None
+                };
+                formattedString.Spans.Add(span);
+            }
+        }
+
+
     }
 }

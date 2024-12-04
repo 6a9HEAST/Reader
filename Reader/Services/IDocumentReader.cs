@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Reader.Models;
 
 namespace Reader.Services
 {
@@ -10,7 +12,7 @@ namespace Reader.Services
     {
         
         Task ReadDocumentAsync();
-        Task<List<FormattedString>> GetText(); // Метод для извлечения текста
+        Task<List<HtmlWebViewSource>> GetText(ObservableCollection<Title> tableOfContents); // Метод для извлечения текста
         ImageSource GetCover(); // Метод для получения обложки
         string GetTitle(); // Название
         string GetAuthor(); // Автор

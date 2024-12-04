@@ -13,11 +13,17 @@
         <StackLayout BackgroundColor="#FFE3C2" 
                      AbsoluteLayout.LayoutFlags="All" 
                      AbsoluteLayout.LayoutBounds="0,0,1,1">
-            <Label FormattedText="{Binding CurrentPage}"                    
+            <!--<Label FormattedText="{Binding CurrentPage}"                    
        LineBreakMode="WordWrap" 
        VerticalOptions="StartAndExpand" 
        HorizontalOptions="FillAndExpand" 
-       TextColor="Black" />
+       TextColor="Black" />-->
+            <WebView 
+                x:Name="webView" 
+                Source="{Binding CurrentPage}" 
+                BackgroundColor="Transparent"
+                Navigated="WebView_Navigated"
+                />
 
         </StackLayout>
 
@@ -90,10 +96,12 @@
             </Grid.ColumnDefinitions>
             
             <ImageButton 
+                Margin="0,6,0,0" 
              Command="{Binding GoBackCommand}" 
              Source="arrow_right.png"
              WidthRequest="23"
              HeightRequest="23"
+                HorizontalOptions="Start"
              VerticalOptions="CenterAndExpand"
              Grid.Column="0"/>
 
@@ -128,7 +136,7 @@
              HorizontalOptions="End"/>
 
             <!--Заголовок и номер страницы внутри главы-->
-            <Label Text="Label"
+            <Label Text="{Binding _name}"
                Margin="6,0,0,0"
                LineBreakMode="NoWrap" 
                Style="{DynamicResource ListItemTextStyle}" 
@@ -150,15 +158,15 @@
         </Grid>
 
         <!-- Нижняя панель оверлея -->
-        <StackLayout BackgroundColor="#6D604C"
+        <Grid BackgroundColor="#6D604C"
                      HeightRequest="100"
                      IsVisible="{Binding IsOverlayVisible}"
                      AbsoluteLayout.LayoutFlags="PositionProportional, WidthProportional"
                      AbsoluteLayout.LayoutBounds="0.5,0.94,1,0">
-            <Label Text="Нижняя панель оверлея" 
+            <Label Text="{Binding PageNumberIndicator}" 
                    HorizontalOptions="Center" 
                    VerticalOptions="CenterAndExpand" />
-        </StackLayout>
+        </Grid>
 
     </AbsoluteLayout>
 </ContentPage>

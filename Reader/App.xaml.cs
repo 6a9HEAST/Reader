@@ -3,11 +3,16 @@ using System.Diagnostics;
 using Android.OS;
 using Android.Provider;
 using Android.Content;
+using Microsoft.Maui.Controls.Compatibility;
+//using Reader.Controls;
+using Topten.RichTextKit;
 
 namespace Reader
 {
+
     public partial class App : Application
     {
+
         public App()
         {
             InitializeComponent();

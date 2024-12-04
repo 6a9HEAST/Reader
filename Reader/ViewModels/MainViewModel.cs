@@ -86,7 +86,8 @@ namespace Reader.ViewModels
             if (item == null)
                 return;
 
-            await Shell.Current.GoToAsync($"ReadView?path={Uri.EscapeDataString(item.Path)}");
+            await Shell.Current.GoToAsync($"ReadView?path={Uri.EscapeDataString(item.Path)}&name={Uri.EscapeDataString(item.Name)}");
+
 
             // This will push the ItemDetailPage onto the navigation stack
             //await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?{nameof(ItemDetailViewModel.ItemId)}={item.Id}");

@@ -15,9 +15,9 @@ namespace Reader.Services
 
             return extension switch
             {
-                ".epub" => new EpubDocumentReader(filePath),
+                //".epub" => new EpubDocumentReader(filePath),
                 ".fb2" => new Fb2DocumentReader(filePath),
-                ".mobi" => new MobiDocumentReader(filePath),
+                //".mobi" => new MobiDocumentReader(filePath),
                 //".doc" => new DocDocumentReader(filePath),
                 //".docx" => new DocxDocumentReader(filePath),
                 //".rtf" => new RtfDocumentReader(filePath),

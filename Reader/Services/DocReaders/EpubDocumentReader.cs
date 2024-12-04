@@ -7,7 +7,7 @@ using Parser = GroupDocs.Parser.Parser;
 
 namespace Reader.Services.DocReaders
 {
-    public class EpubDocumentReader : IDocumentReader
+    public class EpubDocumentReader //: IDocumentReader
     {
         Parser parser { get; set; }
         EpubBook epub { get; set; }
@@ -55,13 +55,13 @@ namespace Reader.Services.DocReaders
 
 
         }
-        public async Task<List<FormattedString>> GetText()
-        {
-            DisplayInfo displayInfo = new DisplayInfo();
+        //public async Task<List<FormattedString>> GetText()
+        //{
+        //    DisplayInfo displayInfo = new DisplayInfo();
 
 
-            return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 25, 1.5, parser);
-        }
+        //    return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 25, 1.5, parser);
+        //}
 
         public ImageSource GetCover()
         {

@@ -8,6 +8,7 @@ namespace Reader.Models
     {
         //Класс для заголовков в оглавлении
         public string Name { get; set; }
+        public int PageNumber { get; set; }
         private bool isExpanded;
         public ObservableCollection<Title> SubItems { get; set; } = new ObservableCollection<Title>();
 

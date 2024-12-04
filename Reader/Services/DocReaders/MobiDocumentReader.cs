@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Reader.Services.DocReaders
 {
-    public class MobiDocumentReader : IDocumentReader
+    public class MobiDocumentReader //: IDocumentReader
     {
         Parser parser { get; set; }
         string _filePath { get; set; }
@@ -38,13 +38,13 @@ namespace Reader.Services.DocReaders
             }
         }
 
-        public async Task<List<FormattedString>> GetText()
-        {
-            DisplayInfo displayInfo = new DisplayInfo();
+        //public async Task<List<FormattedString>> GetText()
+        //{
+        //    DisplayInfo displayInfo = new DisplayInfo();
 
 
-            return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 25, 2, parser);
-        }
+        //    return PageCreator.ExtractPagesWithFormatting(displayInfo.Width, displayInfo.Height, 25, 2, parser);
+        //}
 
         public ImageSource GetCover()
         {
