@@ -1,11 +1,8 @@
 ﻿using GroupDocs.Parser;
 using GroupDocs.Parser.Options;
 using HtmlAgilityPack;
-using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Xml;
 using Reader.Models;
-using Xceed.Document.NET;
 using System.Diagnostics;
 
 namespace Reader.Services
@@ -26,8 +23,8 @@ namespace Reader.Services
             {
                 fullHtml = reader.ReadToEnd();
             }
-            fullHtml = fullHtml.Replace("<br>", "");
-            fullHtml = fullHtml.Replace("</br>", "");
+            fullHtml = fullHtml.Replace("<br>", "").Replace("</br>", "");
+            
             var pages = new List<HtmlWebViewSource>();
             //tableOfContents.Clear();
 
@@ -60,7 +57,7 @@ namespace Reader.Services
                     }
 
                     // Добавляем заголовок в оглавление
-                    var newTitle = new Title { Name = node.InnerText.Trim() };
+                    var newTitle = new Title { Name = node.InnerText.Trim(),PageNumber=pages.Count+1 };
                     if (currentTitle == null || headerLevel == 1)
                     {
                         tableOfContents.Add(newTitle);

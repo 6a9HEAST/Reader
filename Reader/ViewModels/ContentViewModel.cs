@@ -8,35 +8,40 @@ namespace Reader.ViewModels;
 public class ContentViewModel : BaseViewModel
 {
     protected readonly IDataStore<Book> DataStore;
-    public ObservableCollection<Title> Titles { get; set; }
+    private ObservableCollection<Title> titles { get; set; }
+    public ObservableCollection<Title> Titles 
+    { 
+        get => titles;
+        set
+        {
+            titles = value;
+            OnPropertyChanged(nameof(Titles));
+        }
+    }
+
+    public int CurrentPageIndex
+    {
+        get => _sharedDataService.CurrentPageIndex;
+        set => _sharedDataService.CurrentPageIndex = value;
+    }
+
     public ICommand GoBackCommand { get; }
     public Command<Title> ToggleExpandCommand { get; }
 
-    public ContentViewModel(IDataStore<Book> dataStore) : base(dataStore)
+    private readonly SharedDataService _sharedDataService;
+
+    public ContentViewModel(IDataStore<Book> dataStore, SharedDataService sharedDataService) : base(dataStore)
     {
+        _sharedDataService = sharedDataService;
         GoBackCommand = new Command(GoBack);
         DataStore = dataStore;
         ToggleExpandCommand = new Command<Title>(ToggleExpand);
-        Titles = new ObservableCollection<Title>
-        {
-            new Title
-            {
-                Name = "Chapter 1",
-                SubItems = new ObservableCollection<Title>
-                {
-                    new Title { Name = "Section 1.1" },
-                    new Title
-                    {
-                        Name = "Section 1.2",
-                        SubItems = new ObservableCollection<Title>
-                        {
-                            new Title { Name = "Subsection 1.2.1" }
-                        }
-                    }
-                }
-            }
-        };
 
+    }
+
+    public async Task InitializeAsync(ObservableCollection<Title> _tableOfContents)
+    {
+        Titles = _tableOfContents;
     }
     private async void GoBack()
     {

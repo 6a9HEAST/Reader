@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Windows.Input;
 using Aspose.Words.Saving;
 using Microsoft.Maui.Controls;
@@ -47,15 +48,13 @@ namespace Reader.ViewModels
         protected readonly IDataStore<Book> DataStore;
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private int _currentPageIndex;
+        private bool _isInitialized = false;
         public int CurrentPageIndex
         {
-            get { return _currentPageIndex; }
+            get { return _sharedDataService.CurrentPageIndex; }
             set
             {
-                _currentPageIndex = value;
-                OnPropertyChanged(nameof(CurrentPageIndex));
+                _sharedDataService.CurrentPageIndex = value;
                 OnPropertyChanged(nameof(CurrentPage));
             }
         }
@@ -88,19 +87,22 @@ namespace Reader.ViewModels
         {
             get
             {
-                if (_pages != null && _currentPageIndex >= 0 && _currentPageIndex < _pages.Count)
+                if (_pages != null && CurrentPageIndex >= 0 && CurrentPageIndex < _pages.Count)
                 {
-                    PageNumberIndicator = (_currentPageIndex+1) + " из " + _pages.Count;
+                    PageNumberIndicator = (CurrentPageIndex + 1) + " из " + _pages.Count;
                     OnPropertyChanged(nameof(PageNumberIndicator));
-                    return _pages[_currentPageIndex];
+                    return _pages[CurrentPageIndex];
                 }
                     
                 return null;
             }
         }
 
-        public ReadViewModel(IDataStore<Book> dataStore) : base(dataStore)
+        private readonly SharedDataService _sharedDataService;
+
+        public ReadViewModel(IDataStore<Book> dataStore, SharedDataService sharedDataService) : base(dataStore)
         {
+            _sharedDataService = sharedDataService;
             IsOverlayVisible = false;
             DataStore = dataStore;
             GoToPreviousPageCommand = new Command(() => GoToPreviousPage());
@@ -114,6 +116,7 @@ namespace Reader.ViewModels
 
         public async Task InitializeAsync(string path,string name)
         {
+            if (_isInitialized) return;
             _filePath = path;
             _name = name;
             var reader = DocumentReaderFactory.GetReader(_filePath);
@@ -121,10 +124,11 @@ namespace Reader.ViewModels
             OnPropertyChanged(nameof(_name));
             TableOfContents = new ObservableCollection<Title>();
             Pages = await reader.GetText(TableOfContents);
-            foreach (var table in TableOfContents)
-            {
-                Debug.WriteLine(table.Name);
-            }
+            _isInitialized = true;
+            //foreach (var table in TableOfContents)
+            //{
+            //    Debug.WriteLine(table.Name);
+            //}
         }
         
         private void ShowOverlay()
@@ -139,6 +143,7 @@ namespace Reader.ViewModels
 
         private async void GoBack()
         {
+            _isInitialized = false;
             await Shell.Current.GoToAsync("..");
             IsOverlayVisible = false;
         }
@@ -149,7 +154,8 @@ namespace Reader.ViewModels
         }
         private async void OpenContent()
         {
-            await Shell.Current.GoToAsync("ContentView");
+            var json = JsonSerializer.Serialize(TableOfContents); // Преобразуем в JSON
+            await Shell.Current.GoToAsync($"ContentView?data={Uri.EscapeDataString(json)}");
         }
 
         private void GoToPreviousPage()
@@ -162,7 +168,7 @@ namespace Reader.ViewModels
             if (CurrentPageIndex > 0)
             {
                 CurrentPageIndex--;
-                Debug.WriteLine(_currentPageIndex);
+                Debug.WriteLine(CurrentPageIndex);
             }
         }
 
@@ -172,7 +178,7 @@ namespace Reader.ViewModels
             {
 
                 CurrentPageIndex++;
-                Debug.WriteLine(_currentPageIndex);
+                Debug.WriteLine(CurrentPageIndex);
             }
         }
 

@@ -16,26 +16,42 @@
                 <Grid Margin="10">
                     <!-- Внутренний отступ для текста и кнопки -->
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
                         <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
                     <Label Text="{Binding Name}" 
                            VerticalOptions="Center" 
                            FontSize="17" 
                            TextColor="White"
+                           
                            />
 
-                    <!--<Button Text="➤"
+                    <Button ImageSource="arrow_up.png"
+                            
+                            HeightRequest="40"
+                            WidthRequest="40"
+                            BackgroundColor="Transparent"
                             Rotation="{Binding IsExpanded, Converter={StaticResource ExpandRotationConverter}}"
                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ContentViewModel}}, Path=ToggleExpandCommand}"
                             CommandParameter="{Binding .}"
                             IsVisible="{Binding SubItems.Count, Converter={StaticResource GreaterThanZeroConverter}}"
-                            HorizontalOptions="End" />-->
+                            HorizontalOptions="End" 
+                            Margin="0,0,35,0"
+                            Grid.Column="2"/>
+                    <Label Text="{Binding PageNumber}"
+                           VerticalOptions="Center"
+                           Grid.Column="3"
+                           FontSize="17"
+                           TextColor="White"
+                           />
                 </Grid>
 
                 <!-- Вложенный CollectionView для подзаголовков -->
-                <CollectionView ItemsSource="{Binding SubItems}" 
+                <CollectionView ItemsSource="{Binding SubItems}"
+                                HeightRequest="200"
                                 ItemTemplate="{StaticResource RecursiveTemplate}" 
                                 IsVisible="{Binding IsExpanded}" 
                                 Margin="20,0,0,0"/>
@@ -65,11 +81,13 @@
         </Grid>
 
         <!-- Обернутый контейнер для CollectionView -->
-        <StackLayout >
+        
             <CollectionView  ItemsSource="{Binding Titles}" 
                             SelectionMode="None" 
                             ItemTemplate="{StaticResource RecursiveTemplate}">
             </CollectionView>
-        </StackLayout>
+        <CollectionView.ItemSizingStrategy>
+        MeasureAllItems
+        </CollectionView.ItemSizingStrategy>
     </VerticalStackLayout>
 </ContentPage>

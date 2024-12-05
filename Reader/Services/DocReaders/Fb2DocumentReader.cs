@@ -45,13 +45,7 @@ namespace Reader.Services.DocReaders
         public async Task <List<HtmlWebViewSource>> GetText(ObservableCollection<Title> tableOfContents)
         {
             var displayInfo = DeviceDisplay.MainDisplayInfo;
-            Debug.WriteLine($"Width: {displayInfo.Width}, Height: {displayInfo.Height}");
-            Debug.WriteLine($"Density: {displayInfo.Density}");
-            Debug.WriteLine($"Orientation: {displayInfo.Orientation}");
-            Debug.WriteLine($"Rotation: {displayInfo.Rotation}");
-
-
-
+            
             return PageCreator.ExtractPagesWithFormatting(displayInfo.Width / displayInfo.Density, displayInfo.Height / displayInfo.Density, 16, 1.5, parser, tableOfContents);
         }
 
