@@ -3,7 +3,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Windows.Input;
+using Android.Text;
 using Aspose.Words.Saving;
+using HtmlAgilityPack;
 using Microsoft.Maui.Controls;
 using Reader.Models;
 using Reader.Services;
@@ -34,7 +36,6 @@ namespace Reader.ViewModels
             }
         }
         public string _filePath{get;set;}
-        public WebView _webView { get; set; }
         public ICommand ShowOverlayCommand { get; }
         public ICommand HideOverlayCommand { get; }
         public ICommand GoBackCommand { get; }
@@ -55,6 +56,8 @@ namespace Reader.ViewModels
             set
             {
                 _sharedDataService.CurrentPageIndex = value;
+                
+                OnPropertyChanged(nameof(CurrentPageIndex));
                 OnPropertyChanged(nameof(CurrentPage));
             }
         }
@@ -70,16 +73,7 @@ namespace Reader.ViewModels
                 OnPropertyChanged(nameof(CurrentPage));
             }
         }
-        private HtmlWebViewSource _htmlPage;
-        public HtmlWebViewSource HtmlPage
-        {
-            get => _htmlPage;
-            set
-            {
-                _htmlPage = value;
-                OnPropertyChanged(nameof(HtmlPage));
-            }
-        }
+        
 
         public string PageNumberIndicator { get; set; }
 
@@ -91,6 +85,7 @@ namespace Reader.ViewModels
                 {
                     PageNumberIndicator = (CurrentPageIndex + 1) + " из " + _pages.Count;
                     OnPropertyChanged(nameof(PageNumberIndicator));
+                   
                     return _pages[CurrentPageIndex];
                 }
                     
@@ -116,6 +111,7 @@ namespace Reader.ViewModels
 
         public async Task InitializeAsync(string path,string name)
         {
+            OnPropertyChanged(nameof(CurrentPage));
             if (_isInitialized) return;
             _filePath = path;
             _name = name;
@@ -143,6 +139,7 @@ namespace Reader.ViewModels
 
         private async void GoBack()
         {
+            Preferences.Remove("SearchData");
             _isInitialized = false;
             await Shell.Current.GoToAsync("..");
             IsOverlayVisible = false;
@@ -150,6 +147,17 @@ namespace Reader.ViewModels
 
         private async void OpenSearch()
         {
+            List<string> data = new List<string>();
+            foreach (var page in Pages) 
+            {
+                var doc = new HtmlDocument();
+                doc.LoadHtml(page.Html);
+                string plainText = doc.DocumentNode.SelectSingleNode("//body")?.InnerText ?? string.Empty;
+                data.Add(plainText);
+            }
+            
+            var json = JsonSerializer.Serialize(data);
+            Preferences.Set("SearchData", json);
             await Shell.Current.GoToAsync("SearchView");
         }
         private async void OpenContent()
@@ -182,13 +190,7 @@ namespace Reader.ViewModels
             }
         }
 
-        public async Task OnWebViewReadyAsync(WebView webView)
-        {
-            // Теперь WebView готов, можно выполнять операции
-            _webView = webView;
-
-            // Дополнительная логика
-            await Task.CompletedTask;
-        }
+        
+        
     }
 }

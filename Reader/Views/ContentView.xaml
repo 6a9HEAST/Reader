@@ -11,50 +11,56 @@
 
         <!-- Рекурсивный DataTemplate -->
         <DataTemplate x:Key="RecursiveTemplate" x:DataType="model:Title">
-            <StackLayout BackgroundColor="#6D604C" >
-                <!-- Нижний отступ для блока -->
+            <StackLayout BackgroundColor="#6D604C">
+                <!-- Верхний уровень с текстом и кнопкой -->
                 <Grid Margin="10">
-                    <!-- Внутренний отступ для текста и кнопки -->
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
 
+                    <!-- Текст заголовка -->
                     <Label Text="{Binding Name}" 
-                           VerticalOptions="Center" 
-                           FontSize="17" 
-                           TextColor="White"
-                           
-                           />
+                   VerticalOptions="Center" 
+                   FontSize="17" 
+                   TextColor="White" />
 
+                    <!-- Кнопка раскрытия -->
                     <Button ImageSource="arrow_up.png"
-                            
-                            HeightRequest="40"
-                            WidthRequest="40"
-                            BackgroundColor="Transparent"
-                            Rotation="{Binding IsExpanded, Converter={StaticResource ExpandRotationConverter}}"
-                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ContentViewModel}}, Path=ToggleExpandCommand}"
-                            CommandParameter="{Binding .}"
-                            IsVisible="{Binding SubItems.Count, Converter={StaticResource GreaterThanZeroConverter}}"
-                            HorizontalOptions="End" 
-                            Margin="0,0,35,0"
-                            Grid.Column="2"/>
+                    HeightRequest="40"
+                    WidthRequest="40"
+                    BackgroundColor="Transparent"
+                    Rotation="{Binding IsExpanded, Converter={StaticResource ExpandRotationConverter}}"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ContentViewModel}}, Path=ToggleExpandCommand}"
+                    CommandParameter="{Binding .}"
+                    IsVisible="{Binding HasSubItems}"
+                    HorizontalOptions="End"
+                    Margin="0,0,35,0"
+                    Grid.Column="2" />
+
+                    <!-- Номер страницы -->
                     <Label Text="{Binding PageNumber}"
-                           VerticalOptions="Center"
-                           Grid.Column="3"
-                           FontSize="17"
-                           TextColor="White"
-                           />
+                   VerticalOptions="Center"
+                   Grid.Column="3"
+                   FontSize="17"
+                   TextColor="White" />
                 </Grid>
 
-                <!-- Вложенный CollectionView для подзаголовков -->
+                <!-- Вложенные элементы -->
                 <CollectionView ItemsSource="{Binding SubItems}"
-                                HeightRequest="200"
-                                ItemTemplate="{StaticResource RecursiveTemplate}" 
-                                IsVisible="{Binding IsExpanded}" 
-                                Margin="20,0,0,0"/>
+                        ItemTemplate="{StaticResource RecursiveTemplate}" 
+                        IsVisible="{Binding IsExpanded}" 
+                        Margin="20,0,0,0" />
+
+                <!-- Обработка нажатия -->
+                <StackLayout.GestureRecognizers>
+                    <TapGestureRecognizer 
+                NumberOfTapsRequired="1"
+                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ContentViewModel}}, Path=ItemTapped}"
+                CommandParameter="{Binding .}" />
+                </StackLayout.GestureRecognizers>
             </StackLayout>
         </DataTemplate>
     </ContentPage.Resources>
@@ -86,8 +92,6 @@
                             SelectionMode="None" 
                             ItemTemplate="{StaticResource RecursiveTemplate}">
             </CollectionView>
-        <CollectionView.ItemSizingStrategy>
-        MeasureAllItems
-        </CollectionView.ItemSizingStrategy>
+        
     </VerticalStackLayout>
 </ContentPage>

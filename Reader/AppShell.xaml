@@ -5,7 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Reader.Views"
     Shell.FlyoutBehavior="Disabled"
-    Title="Reader">
+    Title="Reader"
+    Shell.BackgroundColor="{StaticResource ReaderLightBrown}">
+
 
     <ShellContent
         

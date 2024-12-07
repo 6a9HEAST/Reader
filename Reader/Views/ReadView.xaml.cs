@@ -29,18 +29,11 @@ public partial class ReadView : ContentPage
 
             if (viewModel != null)
             {
-              viewModel.InitializeAsync(Path,Name);
+              await viewModel.InitializeAsync(Path,Name);
 
             }
         }
     }
-    private async void WebView_Navigated(object sender, WebNavigatedEventArgs e)
-    {
-        var viewModel = BindingContext as ReadViewModel;
-        if (viewModel != null)
-        {
-            await viewModel.OnWebViewReadyAsync(webView);
-        }
-    }
+    
 
 }

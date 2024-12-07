@@ -97,11 +97,7 @@ namespace Reader.Services
                 pages.Add(new HtmlWebViewSource { Html = WrapInHtml(currentPageContent.ToString(), fontSize) });
             }
 
-            Debug.WriteLine($"TableOfContents Count: {tableOfContents.Count}");
-            foreach (var item in tableOfContents)
-            {
-                Debug.WriteLine($"Title: {item.Name}");
-            }
+            
 
             return pages;
         }

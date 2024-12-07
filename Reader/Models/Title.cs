@@ -9,22 +9,22 @@ namespace Reader.Models
         //Класс для заголовков в оглавлении
         public string Name { get; set; }
         public int PageNumber { get; set; }
-        private bool isExpanded;
+        private bool _isExpanded;
         public ObservableCollection<Title> SubItems { get; set; } = new ObservableCollection<Title>();
 
         public bool IsExpanded
         {
-            get => isExpanded;
+            get => _isExpanded;
             set
             {
-                if (isExpanded != value)
+                if (_isExpanded != value)
                 {
-                    isExpanded = value;
+                    _isExpanded = value;
                     OnPropertyChanged(nameof(IsExpanded));
                 }
             }
         }
-
+        public bool HasSubItems => SubItems != null && SubItems.Count > 0;
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

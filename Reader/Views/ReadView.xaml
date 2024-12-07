@@ -13,16 +13,10 @@
         <StackLayout BackgroundColor="#FFE3C2" 
                      AbsoluteLayout.LayoutFlags="All" 
                      AbsoluteLayout.LayoutBounds="0,0,1,1">
-            <!--<Label FormattedText="{Binding CurrentPage}"                    
-       LineBreakMode="WordWrap" 
-       VerticalOptions="StartAndExpand" 
-       HorizontalOptions="FillAndExpand" 
-       TextColor="Black" />-->
             <WebView 
                 x:Name="webView" 
                 Source="{Binding CurrentPage}" 
                 BackgroundColor="Transparent"
-                Navigated="WebView_Navigated"
                 />
 
         </StackLayout>
@@ -164,6 +158,8 @@
                      AbsoluteLayout.LayoutFlags="PositionProportional, WidthProportional"
                      AbsoluteLayout.LayoutBounds="0.5,0.94,1,0">
             <Label Text="{Binding PageNumberIndicator}" 
+                   TextColor="WhiteSmoke"
+                   FontSize="20"
                    HorizontalOptions="Center" 
                    VerticalOptions="CenterAndExpand" />
         </Grid>

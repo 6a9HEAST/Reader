@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Reader.ViewModels"  
              xmlns:model="clr-namespace:Reader.Models"  
-             x:Class="Reader.Views.MainView">
+             x:Class="Reader.Views.MainView"
+             >
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -11,8 +12,9 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+    
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Add" Command="{Binding AddItemCommand}" />
+        <ToolbarItem IconImageSource="plus_white.png" Command="{Binding AddItemCommand}" />
     </ContentPage.ToolbarItems>
 
     <RefreshView x:DataType="vm:MainViewModel" Command="{Binding LoadItemsCommand}" IsRefreshing="{Binding IsBusy, Mode=TwoWay}">

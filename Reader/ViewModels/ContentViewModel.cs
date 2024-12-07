@@ -1,6 +1,7 @@
 using Reader.Models;
 using Reader.Services;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using Xceed.Document.NET;
 namespace Reader.ViewModels;
@@ -8,6 +9,8 @@ namespace Reader.ViewModels;
 public class ContentViewModel : BaseViewModel
 {
     protected readonly IDataStore<Book> DataStore;
+
+    public Command<Title> ItemTapped { get; }
     private ObservableCollection<Title> titles { get; set; }
     public ObservableCollection<Title> Titles 
     { 
@@ -34,6 +37,7 @@ public class ContentViewModel : BaseViewModel
     {
         _sharedDataService = sharedDataService;
         GoBackCommand = new Command(GoBack);
+        ItemTapped=new Command<Title>(OnItemSelected);
         DataStore = dataStore;
         ToggleExpandCommand = new Command<Title>(ToggleExpand);
 
@@ -54,5 +58,18 @@ public class ContentViewModel : BaseViewModel
         item.IsExpanded = !item.IsExpanded;
     }
 
-    
+    async void OnItemSelected(Title item)
+    {
+
+        if (item == null)
+            return;  
+        CurrentPageIndex=item.PageNumber-1;
+        await Shell.Current.GoToAsync("..");
+
+
+        // This will push the ItemDetailPage onto the navigation stack
+        //await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?{nameof(ItemDetailViewModel.ItemId)}={item.Id}");
+    }
+
+
 }

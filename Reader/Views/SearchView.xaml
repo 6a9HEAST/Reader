@@ -4,7 +4,7 @@
              x:Class="Reader.Views.SearchView"
              xmlns:vm="clr-namespace:Reader.ViewModels"
              Shell.NavBarIsVisible="False">
-    <AbsoluteLayout BackgroundColor="#615544">
+    <VerticalStackLayout BackgroundColor="#615544">
         <Grid BackgroundColor="#6D604C"
             AbsoluteLayout.LayoutFlags="PositionProportional, WidthProportional"
             AbsoluteLayout.LayoutBounds="0,0,1,-1">
@@ -29,6 +29,54 @@
                 HeightRequest="23"
                 VerticalOptions="CenterAndExpand"
                 Grid.Column="0"/>
+
+            <Entry Placeholder="Введите текст"
+                Text="{Binding InputText}"
+                ReturnCommand="{Binding SubmitCommand}"
+                FontSize="17"
+                ClearButtonVisibility="WhileEditing"
+                Grid.Column="1"/>
         </Grid>
-    </AbsoluteLayout>
+
+
+        <ScrollView >
+            <CollectionView
+        ItemsSource="{Binding SearchResults}"
+        SelectionMode="None">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Padding="10" BackgroundColor="#766854" Margin="7">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Text="{Binding Text}" Grid.Column="0"                                  
+                                    LineBreakMode="NoWrap"
+                                    Style="{DynamicResource ListItemDetailTextStyle}"
+                                    FontSize="16" 
+                                    TextColor="White"/>
+
+                                <Label Text="{Binding PageNumber}" Grid.Column="2"
+                                    FontSize="16" 
+                                    TextColor="White"/>
+
+
+
+                            </Grid>
+                            <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                NumberOfTapsRequired="1"
+                                Command="{Binding BindingContext.ItemTapped, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                CommandParameter="{Binding .}" />
+                            </StackLayout.GestureRecognizers>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </VerticalStackLayout>
 </ContentPage>
