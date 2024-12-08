@@ -36,7 +36,8 @@ namespace Reader
                 .AddSingleton<SearchView>()
                 .AddSingleton<Reader.Views.ContentView>()
 
-                .AddSingleton<SharedDataService>();
+                .AddSingleton<SharedDataService>()
+                .AddSingleton<DataBaseService>();
 
 
 #if DEBUG

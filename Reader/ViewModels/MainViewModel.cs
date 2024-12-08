@@ -10,25 +10,25 @@ namespace Reader.ViewModels
     {
         private Book _selectedItem;
 
-        public ObservableCollection<Book> Items { get; }
+        public ObservableCollection<Book> Items { get; set; }
         public Command LoadItemsCommand { get; }
         public Command AddItemCommand { get; }
         public Command<Book> ItemTapped { get; }
-        
+        public DataBaseService _databaseservice { get; set; }
 
-        public MainViewModel(IDataStore<Book> dataStore) : base(dataStore)
+        public MainViewModel(IDataStore<Book> dataStore,DataBaseService databaseservice) : base(dataStore)
         {
             
             Title = "About";
-            Items = new ObservableCollection<Book>();
-
+           
+            _databaseservice = databaseservice;
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
-            
             LoadItemsCommand.Execute(null);
             ItemTapped = new Command<Book>(OnItemSelected);
+            AddItemCommand = new Command(OnAddItem);
+
             
 
-            AddItemCommand = new Command(OnAddItem);
         }
 
         async Task ExecuteLoadItemsCommand()
@@ -37,7 +37,7 @@ namespace Reader.ViewModels
 
             try
             {
-                Items.Clear();
+                //Items.Clear();
                 var items = await DataStore.GetItemsAsync(true);
                 foreach (var item in items)
                 {
@@ -56,11 +56,15 @@ namespace Reader.ViewModels
             }
         }
 
-        public void OnAppearing()
+        public async void OnAppearing()
         {
+            Items = await _databaseservice.Read();
+            if (Items == null)
+                Items = new ObservableCollection<Book>();
             IsBusy = true;
             SelectedItem = null;
-            LoadItemsCommand.Execute(null);
+            OnPropertyChanged(nameof(Items));
+            //LoadItemsCommand.Execute(null);
         }
 
         public Book SelectedItem
@@ -76,8 +80,10 @@ namespace Reader.ViewModels
         private async void OnAddItem(object obj)
         {
             var book = await FileScanner.GetBookFromFile();
-
-            if (book != null) Items.Add(book);
+            if (book != null) { 
+                _databaseservice.Write(book);
+             Items.Add(book);
+            }
         }
 
         async void OnItemSelected(Book item)

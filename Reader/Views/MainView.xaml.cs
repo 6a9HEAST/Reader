@@ -17,6 +17,14 @@ namespace Reader.Views
             count++;
 
         }
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            if (BindingContext is MainViewModel viewModel)
+            {
+                viewModel.OnAppearing();
+            }
+        }
     }
 
 }

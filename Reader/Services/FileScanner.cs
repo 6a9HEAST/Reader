@@ -45,8 +45,8 @@ namespace Reader.Services
             var type = reader.GetFormat();
             var size = reader.GetFileSize();
             var cover =  reader.GetCover();//ImageSource.FromFile("dotnet_bot.png");//
-            
-                var book= new Book()
+
+                var book = new Book()
                 {
                     Id = Guid.NewGuid().ToString(),
                     Author = author,
@@ -55,6 +55,7 @@ namespace Reader.Services
                     Size = size + " МБ",
                     Cover = cover,
                     Path = file,
+                    Progress = 0,
                     LastTimeOpened = DateTime.Now
                 };
                 return book;
@@ -63,7 +64,7 @@ namespace Reader.Services
             {
                 Debug.WriteLine("Ошибка при добавлении книги:"+ ex.Message);
                 #if ANDROID
-                    Android.Widget.Toast.MakeText(Android.App.Application.Context, "Ошибка при добавлении  книги", Android.Widget.ToastLength.Short)?.Show();
+                    Android.Widget.Toast.MakeText(Android.App.Application.Context, "Ошибка при добавлении книги", Android.Widget.ToastLength.Short)?.Show();
                 #endif
             }
             return null;
